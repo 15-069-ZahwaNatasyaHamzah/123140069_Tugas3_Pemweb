@@ -1,0 +1,7 @@
+pyramid==2.0.2
+waitress==2.1.2
+sqlalchemy==2.0.23
+psycopg2>=2.9
+requests==2.31.0
+python-dotenv==1.0.0
+google-generativeai>=0.3.0

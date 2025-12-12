@@ -1,0 +1,87 @@
+{
+  "projectName": "Product Review Analyzer",
+  "version": "1.0.0",
+  "description": "AI-powered product review analysis application using Pyramid backend, React frontend, and PostgreSQL database",
+  "author": "Tugas 3 Pemweb - 069",
+  "apiKeys": {
+    "gemini": "AIzaSyCC8UN28KsF1VgIlAzIJsQYfnj8SJgHdaU",
+    "huggingface": "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"
+  },
+  "ports": {
+    "backend": 6543,
+    "frontend": 3000,
+    "database": 5432
+  },
+  "features": [
+    "User can input product review (text)",
+    "Analyze sentiment (positive/negative/neutral) using Hugging Face",
+    "Extract key points using Gemini API",
+    "Display results in React frontend",
+    "Save results to PostgreSQL database",
+    "View all analyzed reviews",
+    "Error handling and loading states"
+  ],
+  "technologies": {
+    "frontend": "React 18",
+    "backend": "Pyramid 2.0",
+    "database": "PostgreSQL 12+",
+    "orm": "SQLAlchemy 2.0",
+    "ui": "Tailwind CSS",
+    "icons": "Lucide React",
+    "http": "Axios"
+  },
+  "apiEndpoints": [
+    {
+      "method": "POST",
+      "path": "/api/analyze-review",
+      "description": "Analyze a product review"
+    },
+    {
+      "method": "GET",
+      "path": "/api/reviews",
+      "description": "Get all reviews"
+    }
+  ],
+  "externalAPIs": [
+    {
+      "name": "Gemini API",
+      "provider": "Google",
+      "purpose": "Extract key points from reviews",
+      "endpoint": "https://generativelanguage.googleapis.com"
+    },
+    {
+      "name": "Hugging Face API",
+      "provider": "Hugging Face",
+      "purpose": "Sentiment analysis",
+      "model": "distilbert-base-uncased-finetuned-sst-2-english",
+      "endpoint": "https://api-inference.huggingface.co"
+    }
+  ],
+  "structure": {
+    "backend": {
+      "app.py": "Pyramid WSGI application configuration",
+      "models.py": "SQLAlchemy database models",
+      "views.py": "API endpoint handlers",
+      "services.py": "Business logic for AI services",
+      "run_server.py": "Server startup script",
+      "requirements.txt": "Python dependencies",
+      ".env": "Environment variables",
+      "development.ini": "Pyramid configuration"
+    },
+    "frontend": {
+      "src/App.js": "Main React application",
+      "src/api.js": "API client with axios",
+      "src/components/ReviewForm.jsx": "Review input form component",
+      "src/components/ReviewResult.jsx": "Single review display component",
+      "src/components/ReviewList.jsx": "Reviews list component",
+      "src/index.js": "React entry point",
+      "public/index.html": "HTML template",
+      "package.json": "Node.js dependencies"
+    }
+  },
+  "documentation": {
+    "README.md": "Project overview and setup guide",
+    "GETTING_STARTED.md": "Quick start guide with troubleshooting",
+    "API_DOCUMENTATION.md": "Detailed API endpoint documentation"
+  }
+}

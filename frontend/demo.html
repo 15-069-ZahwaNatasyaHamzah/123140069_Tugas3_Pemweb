@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Review Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --maroon: #7d1f2c;
+            --maroon-light: #a8364a;
+            --maroon-dark: #5a1620;
+            --cream: #faf8f3;
+            --gold: #d4a574;
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #1a0f0f 0%, #3d1f26 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .sentiment-positive { 
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(74, 222, 128, 0.05));
+            border: 2px solid #22c55e;
+        }
+        .sentiment-negative { 
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(252, 165, 165, 0.05));
+            border: 2px solid #ef4444;
+        }
+        .sentiment-neutral { 
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(217, 70, 239, 0.05));
+            border: 2px solid #a855f7;
+        }
+        
+        .maroon-btn {
+            background: linear-gradient(135deg, var(--maroon), var(--maroon-light));
+            transition: all 0.3s ease;
+        }
+        
+        .maroon-btn:hover {
+            background: linear-gradient(135deg, var(--maroon-dark), var(--maroon));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(125, 31, 44, 0.3);
+        }
+        
+        .maroon-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .form-card {
+            background: var(--cream);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border-top: 5px solid var(--maroon);
+        }
+        
+        .spinner { 
+            border: 3px solid rgba(255, 255, 255, 0.3); 
+            border-top: 3px solid white; 
+            border-radius: 50%; 
+            width: 18px; 
+            height: 18px; 
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        
+        .sentiment-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .positive-badge {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .negative-badge {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .neutral-badge {
+            background: #a855f7;
+            color: white;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-light) 100%);
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 2.5em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1em;
+            position: relative;
+            z-index: 1;
+        }
+        
+        input, textarea {
+            border-color: #ddd;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: var(--maroon);
+            box-shadow: 0 0 0 3px rgba(125, 31, 44, 0.1);
+            outline: none;
+        }
+        
+        label {
+            color: var(--maroon-dark);
+            font-weight: 600;
+        }
+        
+        .key-point {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(125, 31, 44, 0.1);
+        }
+        
+        .key-point:last-child {
+            border-bottom: none;
+        }
+        
+        .key-point-icon {
+            color: var(--maroon);
+            font-weight: bold;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        
+        .review-card {
+            background: white;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen">
+        <!-- Header -->
+        <div class="header">
+            <div class="max-w-4xl mx-auto">
+                <h1><i class="fas fa-star"></i> Product Review Analyzer</h1>
+                <p>Analisis sentimen & ekstraksi poin kunci dengan AI terkini</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-4xl mx-auto px-4 pb-12">
+            <!-- Form -->
+            <form id="reviewForm" class="form-card rounded-xl p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                    <i class="fas fa-pen-fancy" style="color: var(--maroon);"></i>
+                    Analisis Review Produk
+                </h2>
+                <p class="text-gray-600 text-sm mb-6">Masukkan review Anda untuk mendapatkan analisis sentimen dan poin kunci</p>
+                
+                <div class="mb-6">
+                    <label for="productName" class="block mb-2 flex items-center gap-2">
+                        <i class="fas fa-box" style="color: var(--maroon);"></i>
+                        Nama Produk (Opsional)
+                    </label>
+                    <input type="text" id="productName" placeholder="Contoh: iPhone 15 Pro Max..." class="w-full px-4 py-3 border-2 rounded-lg">
+                </div>
+
+                <div class="mb-6">
+                    <label for="reviewText" class="block mb-2 flex items-center gap-2">
+                        <i class="fas fa-comments" style="color: var(--maroon);"></i>
+                        Teks Review *
+                    </label>
+                    <textarea id="reviewText" placeholder="Tuliskan pengalaman Anda dengan produk ini..." rows="5" class="w-full px-4 py-3 border-2 rounded-lg resize-none"></textarea>
+                </div>
+
+                <div id="errorContainer"></div>
+
+                <button type="submit" id="analyzeBtn" class="w-full maroon-btn text-white font-bold py-3 px-4 rounded-lg">
+                    <i class="fas fa-magic" style="margin-right: 8px;"></i>Analisis Sekarang
+                </button>
+            </form>
+
+            <!-- Results Section -->
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:6543';
+        let reviews = [];
+
+        // Load reviews on page load
+        document.addEventListener('DOMContentLoaded', loadReviews);
+
+        // Form submission
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const reviewText = document.getElementById('reviewText').value.trim();
+            const productName = document.getElementById('productName').value.trim();
+            const errorContainer = document.getElementById('errorContainer');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            
+            // Clear previous errors
+            errorContainer.innerHTML = '';
+            
+            // Validation
+            if (!reviewText) {
+                showError('Silahkan masukkan teks review', errorContainer);
+                return;
+            }
+            
+            if (reviewText.length < 10) {
+                showError('Review harus minimal 10 karakter', errorContainer);
+                return;
+            }
+            
+            // Show loading
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<span class="spinner inline-block mr-2"></span>Sedang menganalisis...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/analyze-review`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ review_text: reviewText, product_name: productName || null })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    reviews.unshift(data);
+                    document.getElementById('reviewForm').reset();
+                    displayResults();
+                } else {
+                    showError(data.error || 'Gagal menganalisis review', errorContainer);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Koneksi error: ' + error.message + '. Pastikan backend server berjalan di http://localhost:6543', errorContainer);
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '<i class="fas fa-magic" style="margin-right: 8px;"></i>Analisis Sekarang';
+            }
+        });
+
+        function showError(message, container) {
+            container.innerHTML = `
+                <div class="mb-6 p-4 bg-red-50 border-2 border-red-400 text-red-700 rounded-lg flex items-start gap-3">
+                    <i class="fas fa-exclamation-circle mt-1" style="color: #dc2626;"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+        }
+
+        async function loadReviews() {
+            try {
+                const response = await fetch(`${API_URL}/api/reviews`);
+                if (response.ok) {
+                    reviews = await response.json();
+                    displayResults();
+                }
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+            }
+        }
+
+        function displayResults() {
+            const container = document.getElementById('resultsContainer');
+            
+            if (reviews.length === 0) {
+                container.innerHTML = `
+                    <div class="form-card rounded-xl p-12 text-center">
+                        <div style="font-size: 3em; margin-bottom: 15px; opacity: 0.3;">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <p class="text-gray-600 text-lg">Belum ada review. Analisis review Anda untuk memulai!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2 mb-6">
+                        <i class="fas fa-chart-bar" style="color: var(--gold);"></i>
+                        Hasil Analisis
+                    </h2>
+                </div>
+            `;
+            
+            reviews.forEach(review => {
+                const keyPoints = JSON.parse(review.key_points || '[]');
+                const sentimentClass = `sentiment-${review.sentiment}`;
+                const sentimentBadgeClass = `${review.sentiment}-badge`;
+                const sentimentLabel = review.sentiment === 'positive' ? 'POSITIF' : review.sentiment === 'negative' ? 'NEGATIF' : 'NETRAL';
+                const confidencePercent = (review.sentiment_score * 100).toFixed(1);
+                
+                html += `
+                    <div class="review-card ${sentimentClass} rounded-xl p-6 mb-6">
+                        <div class="mb-4">
+                            <div class="flex items-start justify-between gap-4 mb-4">
+                                <div class="flex-1">
+                                    ${review.product_name ? `<h3 class="text-xl font-bold text-gray-800 mb-2"><i class="fas fa-box" style="color: var(--maroon); margin-right: 8px;"></i>${review.product_name}</h3>` : ''}
+                                    <p class="text-gray-700 text-base leading-relaxed italic">"${review.review_text}"</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-3 items-center">
+                                <span class="sentiment-badge ${sentimentBadgeClass}">${sentimentLabel}</span>
+                                <span class="text-sm font-semibold text-gray-600">Confidence: ${confidencePercent}%</span>
+                            </div>
+                        </div>
+                        
+                        ${keyPoints.length > 0 ? `
+                            <div class="mt-6 pt-4" style="border-top: 2px solid rgba(0,0,0,0.1);">
+                                <p class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-lightbulb" style="color: var(--maroon);"></i>
+                                    Poin Kunci
+                                </p>
+                                <div class="space-y-2">
+                                    ${keyPoints.map(point => `
+                                        <div class="key-point">
+                                            <div class="key-point-icon">✓</div>
+                                            <span class="text-gray-800">${point}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <p class="text-xs text-gray-500 mt-4 pt-4" style="border-top: 1px solid rgba(0,0,0,0.05);">
+                            <i class="fas fa-clock" style="margin-right: 5px;"></i>${new Date(review.created_at).toLocaleString('id-ID')}
+                        </p>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
