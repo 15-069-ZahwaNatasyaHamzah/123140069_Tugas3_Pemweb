@@ -208,10 +208,5 @@ Tugas3_Pemweb_069/
 - Check Google API quota
 - Review text mungkin terlalu pendek
 
-## Author
-
-Tugas 3 Pemweb - 069
-
-## License
-
-MIT
+### Nama : Zahwa natasya hamzah
+### NIM : 123140069
