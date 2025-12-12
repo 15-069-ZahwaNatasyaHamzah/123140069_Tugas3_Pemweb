@@ -208,7 +208,6 @@ Tugas3_Pemweb_069/
 - Check Google API quota
 - Review text mungkin terlalu pendek
 
-
 ---
 Nama : Zahwa natasya hamzah
 NIM : 123140069
